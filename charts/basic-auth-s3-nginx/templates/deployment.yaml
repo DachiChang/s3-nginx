@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "basic-auth-s3-nginx.fullname" . }}
+  labels:
+    {{- include "basic-auth-s3-nginx.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "basic-auth-s3-nginx.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "basic-auth-s3-nginx.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "basic-auth-s3-nginx.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.secretFile }}
+      volumes:
+        - name: secret-files
+          secret:
+            secretName: {{ include "basic-auth-s3-nginx.fullname" . }}-secret-files
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.container.port | default .Values.service.port }}
+              protocol: TCP
+          #livenessProbe:
+          #  httpGet:
+          #    path: {{ .Values.healthEndpoint.path | default "/" }}
+          #    port: http
+          #readinessProbe:
+          #  httpGet:
+          #    path: {{ .Values.healthEndpoint.path | default "/" }}
+          #    port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if or .Values.env .Values.secret }}
+          envFrom:
+          {{- end }}
+          {{- if .Values.env }}
+            - configMapRef:
+                name: {{ include "basic-auth-s3-nginx.fullname" . }}-env
+          {{- end }}
+          {{- if .Values.secret }}
+            - secretRef:
+                name: {{ include "basic-auth-s3-nginx.fullname" . }}-secret-env
+          {{- end }}
+          {{- if .Values.secretFile }}
+          volumeMounts:
+            {{- range .Values.secretFile }}
+            - name: secret-files
+              mountPath: {{ .mountTo }}{{ .name }}
+              subPath: {{ .name }}
+            {{- end }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

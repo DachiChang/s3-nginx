@@ -1,0 +1,130 @@
+# Default values for basic-auth-s3-nginx.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: dachichang/basic-auth-s3-nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+container:
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+healthEndpoint: {}
+
+env: {}
+  # - name: S3_BUCKET_NAME
+  #   value: ??
+  # - name: S3_SERVER
+  #   value: ??
+  # - name: S3_SERVER_PORT
+  #   value: 443
+  # - name: S3_SERVER_PROTO
+  #   value: https
+  # - name: S3_REGION
+  #   value: us-west-2
+  # - name: S3_STYLE
+  #   value: virtual
+  # - name: DEBUG
+  #   value: false
+  # - name: AWS_SIGS_VERSION
+  #   value: 4
+  # - name: ALLOW_DIRECTORY_LIST
+  #   value: true
+  # - name: PROVIDE_INDEX_PAGE
+  #   value: true
+  # - name: PROXY_CACHE_MAX_SIZE
+  #   value: 10g
+  # - name: PROXY_CACHE_INACTIVE
+  #   value: 60m
+  # - name: PROXY_CACHE_VALID_OK
+  #   value: 1h
+  # - name: PROXY_CACHE_VALID_NOTFOUND
+  #   value: 1m
+  # - name: PROXY_CACHE_VALID_FORBIDDEN
+  #   value: 30s
+  # - name: AWS_ACCESS_KEY_ID
+  #   value: ??
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   value: ??
+
+secret: {}
+
+secretFile: {}
+  # - name: base_auth_file
+  #   data: b64(data)
+  #   mountTo: /etc/nginx/

@@ -1,0 +1,45 @@
+# Default values for s3-nginx.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+ingress:
+  enabled: true
+  className: psg
+  hosts:
+    - host: nginx-s3.itscocloud.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+env:
+  - name: S3_BUCKET_NAME
+    value: dachi-s3-test
+  - name: S3_SERVER
+    value: s3.us-west-2.amazonaws.com
+  - name: S3_SERVER_PORT
+    value: 443
+  - name: S3_SERVER_PROTO
+    value: https
+  - name: S3_REGION
+    value: us-west-2
+  - name: S3_STYLE
+    value: virtual
+  - name: DEBUG
+    value: false
+  - name: AWS_SIGS_VERSION
+    value: 4
+  - name: ALLOW_DIRECTORY_LIST
+    value: true
+  - name: PROVIDE_INDEX_PAGE
+    value: false
+  - name: PROXY_CACHE_MAX_SIZE
+    value: 0
+  - name: AWS_ACCESS_KEY_ID
+    value: ????
+  - name: AWS_SECRET_ACCESS_KEY
+    value: ????
+
+secretFile:
+  - name: base_auth_file
+    data: # cat basic_auth_user_pass | base64
+    mountTo: /etc/nginx/

@@ -1,0 +1,10 @@
+{{- if.Values.env }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "basic-auth-s3-nginx.fullname" . }}-env
+data:
+  {{- range .Values.env }}
+  {{ .name }}: {{ .value | quote }}
+  {{- end }}
+{{- end }}
